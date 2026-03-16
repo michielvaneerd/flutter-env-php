@@ -243,24 +243,28 @@ function my_global_check(array $fullConfig, ?string $env = null)
     // Check Dart file with constants
     $envFile = $envConfig['env_file'];
     $dartFileContents = file_get_contents('lib/' . $envFile);
+    // Make sure we have all lines in one single line, for example:
+    // OK: static const sentryDns = "...";
+    // NOT OK: static const sentryDns =
+    //  "...";
     foreach ($envConfig['env'] as $key => $value) {
         $val = $value['value'];
         switch ($value['type']) {
             case 'String':
                 // Note that a string can contain special regex characters (like *), so these need to be escaped.
                 $val = preg_quote($val, '@');
-                if (!preg_match("@static const $key = \"$val\";@", $dartFileContents)) {
+                if (!preg_match("@static const $key =[\t\s\n]*\"$val\";@", $dartFileContents)) {
                     my_error_die("Cannot find '$key' with value '$val' in $envFile.");
                 }
                 break;
             case 'bool':
                 $val = $val ? 'true' : 'false';
-                if (!preg_match("@static const $key = $val;@", $dartFileContents)) {
+                if (!preg_match("@static const $key =[\t\s\n]*$val;@", $dartFileContents)) {
                     my_error_die("Cannot find '$key' with value '$val' in $envFile.");
                 }
                 break;
             default:
-                if (!preg_match("@static const $key = $val;@", $dartFileContents)) {
+                if (!preg_match("@static const $key =[\t\s\n]*$val;@", $dartFileContents)) {
                     my_error_die("Cannot find '$key' with value '$val' in $envFile.");
                 }
                 break;
