@@ -148,7 +148,7 @@ function my_write_dart_constants_file(string $env, array $envConfig): void
     $dartEnvLines = [
         "/// Env = $env",
         "/// Written by my_env.php - don't manually change this file!",
-        "class " . $envConfig['env_class'] . " {"
+        "class " . $envConfig['envClass'] . " {"
     ];
     foreach ($envConfig['env'] as $key => $value) {
         $val = $value['value'];
@@ -166,7 +166,7 @@ function my_write_dart_constants_file(string $env, array $envConfig): void
         }
     }
     $dartEnvLines[] = "}";
-    file_put_contents('lib/' . $envConfig['env_file'], implode("\n", $dartEnvLines));
+    file_put_contents('lib/' . $envConfig['envFile'], implode("\n", $dartEnvLines));
 }
 
 /**
@@ -241,7 +241,7 @@ function my_global_check(array $fullConfig, ?string $env = null)
     $envConfig = my_get_env_config($fullConfig, $env);
 
     // Check Dart file with constants
-    $envFile = $envConfig['env_file'];
+    $envFile = $envConfig['envFile'];
     $dartFileContents = file_get_contents('lib/' . $envFile);
     // Make sure we have all lines in one single line, for example:
     // OK: static const sentryDns = "...";
@@ -381,8 +381,8 @@ function my_init($argv)
      * Parse the `flutter-env.json` file. MUST contain the `default` key with all the default configuration.
      * CAN contain other environments as keys that can override default or add new configurations.
      * The `default` can contain some special keys that other environments don't have:
-     * - `env_file` - File to write the constants to. If empty, then it will be `my_env.dart`.
-     * - `env_class` - Class that the constants belong to. If empty, then it will be `MyEnv`.
+     * - `envFile` - File to write the constants to. If empty, then it will be `my_env.dart`.
+     * - `envClass` - Class that the constants belong to. If empty, then it will be `MyEnv`.
      * The default and other environments can contain the following keys:
      * - `appId` - Only needed if environments have different app id's.
      * - `firebaseManage` - Whether this script should manage the Firebase config files.
@@ -392,14 +392,14 @@ function my_init($argv)
     $environments = array_keys($fullConfig);
 
     // Add default values if they are not set
-    if (!array_key_exists('env_file', $fullConfig['default'])) {
-        $fullConfig['default']['env_file'] = 'my_env.dart';
+    if (!array_key_exists('envFile', $fullConfig['default'])) {
+        $fullConfig['default']['envFile'] = 'my_env.dart';
     }
-    if (!array_key_exists('env_class', $fullConfig['default'])) {
-        $fullConfig['default']['env_class'] = 'MyEnv';
+    if (!array_key_exists('envClass', $fullConfig['default'])) {
+        $fullConfig['default']['envClass'] = 'MyEnv';
     }
 
-    $currentSetEnv = get_current_active_env($fullConfig['default']['env_file']);
+    $currentSetEnv = get_current_active_env($fullConfig['default']['envFile']);
 
     $firstArgument = $argv[1] ?? null;
     if (empty($firstArgument)) {
